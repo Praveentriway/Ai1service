@@ -49,9 +49,7 @@
    const [assImg,setAssImg] = React.useState()
    const [assMess,setAssMess] = React.useState()
    const [pay,setPay] = React.useState()
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+
 
 
   React.useEffect(()=>{
@@ -134,7 +132,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
               return Promise.reject(error)
             }
           )
-       1
+       
 
             axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/wip/staff/${r}`,{ headers: { "Authorization" : `Bearer ${res}`} })
             .then((res) => {

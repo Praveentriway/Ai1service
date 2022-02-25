@@ -168,7 +168,7 @@ import RestApiConstant from './RestApiConstant';
       animated={true}
       backgroundColor="#2ea3f2"
        barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-       <View style={{backgroundColor:"#2ea3f2",borderBottomRightRadius:50}}>
+       <View style={{backgroundColor:"#2ea3f2",borderBottomRightRadius:30}}>
        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:0,padding:25,width:'100%'}}>
             
              
@@ -197,12 +197,16 @@ import RestApiConstant from './RestApiConstant';
         
          </View>
          </View>
-         <View style={{padding:10,alignItems:'center'}}>
-            <View >
+         <View style={{padding:10,alignItems:'center',marginBottom:10}}>
+            <View  >
           {/*   <ImageBackground source={require('../assets/bc1.jpg')} style={{height:100,width:'90%'}}>
 
             </ImageBackground> */}
-            <Animated.View  style={[{transform: [{translateX: startValue }]},{right:20,height:100,width:"90%",backgroundColor:"#fff",borderRadius:10,marginBottom:20,justifyContent:"space-around",flexDirection:"row",marginBottom:20,alignContent:'center',alignItems:'center'}]}>
+            <View style={{marginBottom:5}}>
+            <Text style={{fontSize:18,fontWeight:'bold',marginBottom:0,color:'#FFFFFF'}}>Welcome Praveen...</Text>
+            </View>
+           
+            <Animated.View  style={[{transform: [{translateX: startValue }]},{right:20,height:100,width:"90%",backgroundColor:"#fff",borderRadius:10,marginBottom:0,marginTop:10,justifyContent:"space-around",flexDirection:"row",marginBottom:20,alignContent:'center',alignItems:'center'}]}>
            
       
            <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
@@ -229,20 +233,20 @@ import RestApiConstant from './RestApiConstant';
           </View>
        
  </Animated.View>
- 
+             
             </View>
          </View>
          
-      <View  style={{justifyContent:"space-around",flexDirection:"row",marginBottom:10}}>
+     {/*  <View  style={{justifyContent:"space-around",flexDirection:"row",marginBottom:10}}>
       
-            <Text  style={{color:'#FFFFFF',fontWeight:'bold',fontSize:16}}>{/* 10/02/2022 */}</Text>
+            <Text  style={{color:'#FFFFFF',fontWeight:'bold',fontSize:16}}>10/02/2022</Text>
             
              <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0}}>
       
-            <Text  style={{color:'#FFFFFF',fontWeight:'bold',fontSize:16}}>{/* Monday */}</Text>
-             <Text style={{color:"#FFFFFF",fontSize:10}}>{/* 11:30AM */}</Text>
+            <Text  style={{color:'#FFFFFF',fontWeight:'bold',fontSize:16}}>Monday</Text>
+             <Text style={{color:"#FFFFFF",fontSize:10}}>11:30AM</Text>
        </View>
-       </View>
+       </View> */}
          </View>
          
          <View style={{flex:0,marginBottom:0,width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:50}}>

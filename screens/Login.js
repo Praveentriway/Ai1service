@@ -53,8 +53,10 @@
     }
   React.useEffect(()=>{
     LogBox.ignoreLogs(['new NativeEventEmitter']); 
+
     tokenKey()
   },[])
+
 
   const tokenKey = async() =>{
 
@@ -65,7 +67,7 @@
        
            if(res != null){
              console.log(res)
-             navigation.navigate('Home')
+             navigation.navigate('TabNav')
            }
        
        }).catch((err)=>{
@@ -114,7 +116,7 @@
      await AsyncStorage.setItem('UserID',id.toString())
      onChangeEmail('')
      onChangePass('')
-     navigation.navigate("Home")
+     navigation.navigate("TabNav")
   
    }).catch( (error)=> {
     console.log("error")
