@@ -226,7 +226,8 @@ const profileScreen =()=> {
      }} 
 
     initialRouteName={Login}>
-     
+
+
         <Stack.Screen
       name = "Login"
       component = {Login}
@@ -250,12 +251,11 @@ const profileScreen =()=> {
       component = {ActiveOrder}
       />
     
-
-
- <Stack.Screen
+    <Stack.Screen
       name = "NewRequest"
       component = {NewRequest}
       />
+     
 
 
      </Stack.Navigator> 

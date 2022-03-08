@@ -42,6 +42,7 @@ import RestApiConstant from './RestApiConstant';
    const [modalVisible, setModalVisible] = React.useState(false);
    const [bar, onChangeBar] = React.useState(false)
    const [touchOut, onTouchOut] = React.useState(false)
+   const [userRole,setUserRole] = React.useState()
    const isFocused = useIsFocused();
    const backgroundStyle = {
      backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
@@ -73,14 +74,20 @@ import RestApiConstant from './RestApiConstant';
 
              
              
-    await  AsyncStorage.getItem('UserID').then((res)=>{
-         console.log(res)
-       
-    
-       
+       await  AsyncStorage.getItem('UserID').then((res)=>{
+         console.log(res)      
        }).catch((err)=>{
          console.log('err')
         })
+
+
+        await  AsyncStorage.getItem('UserRole').then((res)=>{
+          console.log('Role',res)  
+          /* wcfm_vendor */
+          setUserRole(res)
+        }).catch((err)=>{
+          console.log('err')
+         })
 
         await  AsyncStorage.getItem('TokenStrings').then((res)=>{
           console.log(res)
@@ -138,6 +145,8 @@ import RestApiConstant from './RestApiConstant';
       }
     )
   //  ${RestApiConstant.LOCAL_URL}/ai1service
+
+
       axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/dashboard/staff/${r}/count`,{ headers: {"Authorization" : `Bearer ${res}`} })
       .then((res) => {
         console.log(res.data)
@@ -202,18 +211,17 @@ import RestApiConstant from './RestApiConstant';
           {/*   <ImageBackground source={require('../assets/bc1.jpg')} style={{height:100,width:'90%'}}>
 
             </ImageBackground> */}
-            <View style={{marginBottom:5}}>
+          {/*   <View style={{marginBottom:5}}>
             <Text style={{fontSize:18,fontWeight:'bold',marginBottom:0,color:'#FFFFFF'}}>Welcome Praveen...</Text>
             </View>
-           
-            <Animated.View  style={[{transform: [{translateX: startValue }]},{right:20,height:100,width:"90%",backgroundColor:"#fff",borderRadius:10,marginBottom:0,marginTop:10,justifyContent:"space-around",flexDirection:"row",marginBottom:20,alignContent:'center',alignItems:'center'}]}>
-           
-      
+            */}
+           <Animated.View  style={[{transform: [{translateX: startValue }]},{right:20,height:100,width:"90%",backgroundColor:"#fff",borderRadius:10,marginBottom:0,marginTop:10,justifyContent:"space-around",flexDirection:"row",marginBottom:20,alignContent:'center',alignItems:'center'}]}>
+   
            <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
 
         
           <Text style={{color:"#0B0B3B",fontWeight:'bold',fontSize:24}}>{New}</Text>
-          <Text  style={{color:'#000',fontWeight:'500',fontSize:14}}>New Request</Text>
+          <Text style={{color:'#000',fontWeight:'500',fontSize:14}}>New Request</Text>
           </View>
 
           <View style={{height:40,width:2,backgroundColor:"#2ea3f2"}}></View>
@@ -267,7 +275,7 @@ import RestApiConstant from './RestApiConstant';
           </View>
           <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
          {/*  <Image source={require('../assets/active.png')} style={{height:50,width:50,padding:12}}/> */}
-         <Animated.Image source={require('../assets/active.png')} style={[{transform: [{translateX: startValue }]},{height:50,width:50,padding:0,right:20}]}/>
+         <Animated.Image source={require('../assets/fast.png')} style={[{transform: [{translateX: startValue }]},{height:50,width:50,padding:0,right:20}]}/>
 
           <Text  style={{color:'#000',fontWeight:'bold',fontSize:14}}>Active Order</Text>
           </View>
@@ -297,6 +305,10 @@ import RestApiConstant from './RestApiConstant';
           <Text  style={{color:'#000',fontWeight:'bold',fontSize:14}}>Message</Text>
           </View>
           </View>
+         </View>
+
+         <View style={{padding:20}}>
+    {/*      <Image source={require('../assets/han2.png')} style={{height:68,width:'100%',padding:0,right:0,marginBottom:25}}/> */}
          </View>
       
          <Modal

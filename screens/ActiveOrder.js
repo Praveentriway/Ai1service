@@ -44,12 +44,14 @@
    const [signPad, setSignPad] = React.useState(false);
    const [selected,onSelected] = React.useState([])
    const [signUri,onSignUri] = React.useState()
-   
+   const [activeDate ,setActiveDate] = React.useState('Accepted Date')
+   const [activeLabel,setActiveLabel] = React.useState('Mark-As-Complete')
    const [Message, setMessage] = React.useState(false);
    const [assImg,setAssImg] = React.useState()
    const [assMess,setAssMess] = React.useState()
    const [pay,setPay] = React.useState()
 
+   const [userRole,setUserRole] = React.useState()
 
 
   React.useEffect(()=>{
@@ -94,6 +96,19 @@ const _signaturePadChange = ({base64DataUrl}) => {
          }).catch((err)=>{
            console.log('errr')
           }) */
+
+          await  AsyncStorage.getItem('UserRole').then((res)=>{
+            console.log('Role',res)  
+            /* wcfm_vendor */
+            setUserRole(res)
+            if(res == "wcfm_vendor"){
+              setActiveDate("Assigned Date")
+              setActiveLabel('Work-In-Progress')
+            }
+          }).catch((err)=>{
+            console.log('err')
+           })
+  
     
           await  AsyncStorage.getItem('TokenStrings').then((res)=>{
             console.log(res)
@@ -136,7 +151,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
             axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/wip/staff/${r}`,{ headers: { "Authorization" : `Bearer ${res}`} })
             .then((res) => {
-              console.log(res.data)
+              console.log("resdff",res)
               setLoading(false)
               setLineItem(res.data)   
             }).catch((er)=>{
@@ -157,7 +172,8 @@ const _signaturePadChange = ({base64DataUrl}) => {
          
          const completeOrder = () =>{
               setLoading(!loading)
-                      axios.interceptors.request.use(
+              
+                axios.interceptors.request.use(
                 config=>{
                   config.headers.Authorization = `Bearer ${token}`               
                   return config
@@ -238,7 +254,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
          <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:"#2ea3f2"}}>{item.order_id}</Text>
      
          <Text style={{padding:3,fontWeight:'bold',fontSize:12,color:"#000"}}>{item.name}</Text>
-         <Text style={{padding:3,fontWeight:'400',fontSize:10,color:"#000"}}>Accepted Date :</Text>
+         <Text style={{padding:3,fontWeight:'400',fontSize:10,color:"#000"}}>{activeDate} :</Text>
          <Text style={{padding:3,fontWeight:'bold',fontSize:12,color:"#000"}}>{accept}</Text>
          </View>
          <View style={{width:"30%",height:'100%',alignContent:'center',flexDirection:'column',padding:5}}>
@@ -248,8 +264,13 @@ const _signaturePadChange = ({base64DataUrl}) => {
             <Text style={{padding:0,fontWeight:'bold',fontSize:12,color:"#000"}}>{acceptedtime}</Text>
    
             </View>
-            <TouchableOpacity onPress={()=>{selectedItems(item)}} style={{backgroundColor:'#000',borderRadius:15,alignItems:'center',justifyContent:'center',padding:5}}>
-                <Text style={{color:'#fff',fontWeight:'bold',fontSize:11}}>Mark As Complete</Text>
+            <TouchableOpacity onPress={()=>{
+              if(userRole != 'wcfm_vendor'){
+                   selectedItems(item)
+              }          
+              }} 
+              style={{backgroundColor:'#000',borderRadius:15,alignItems:'center',justifyContent:'center',padding:8,width:'100%'}}>
+                <Text style={{color:'#fff',fontWeight:'bold',fontSize:10}}>{activeLabel}</Text>
             </TouchableOpacity>
          </View>
       
@@ -459,9 +480,8 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
             <View style={{height:180, color:"#000000" ,borderWidth:1,borderColor:'#000'}}>
        
-                    <SignaturePad style={{height:180, color:"#000000" ,padding:5 }} dotSize={2} onError={_signaturePadError}
-                        onChange={_signaturePadChange}
-                        style={{flex: 1, backgroundColor: 'white'}}/>
+                    <SignaturePad style={{flex: 1, backgroundColor: 'white',height:180, color:"#000000" ,padding:5 }} dotSize={2} onError={_signaturePadError} 
+                    onChange={_signaturePadChange} />
             </View>
           
           <View>
@@ -480,7 +500,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
               style={{borderRadius:15,backgroundColor:'#2ea3f2',width:100,height:35,
               alignItems:'center',justifyContent:'center'}}
               onPress={() =>
-                 {/*  uploadSignFile(token,userID) */
+                 { /* uploadSignFile(token,userID) */
                     completeOrder()
                 }
             }>
