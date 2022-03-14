@@ -9,6 +9,8 @@ import Login from './screens/Login';
 import Completed from './screens/Completed';
 import ActiveOrder from './screens/ActiveOrder';
 import Profile from './screens/Profile'
+import StaffList from './screens/StaffList'
+import EditStaff from './screens/EditStaff'
 import SplashScreen from 'react-native-splash-screen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons'
@@ -53,7 +55,7 @@ export default function App({navigation}) {
         return 'flex';
       }
 
-      const homeScreen =({navigation,route})=> {
+      const HomeScreen =({navigation,route})=> {
      //   getTabBarVisible(route)
      console.log('route',getFocusedRouteNameFromRoute(route))
         return (
@@ -74,9 +76,15 @@ export default function App({navigation}) {
       component = {Home}
       />
      
-    
+     <Stack.Screen
+      name = "StaffList"
+      component = {StaffList}
+      />
 
-    
+    <Stack.Screen
+      name = "EditStaff"
+      component = {EditStaff}
+      />
       <Stack.Screen
       name = "Completed"
       component = {Completed}
@@ -98,7 +106,7 @@ export default function App({navigation}) {
         )
    }
 
-   const newRequestScreen =()=> {
+   const NewRequestScreen =()=> {
     return (
       <Stack.Navigator
       screenOptions={{
@@ -127,7 +135,7 @@ const TabNav = () =>{
   return(
     <Tab.Navigator
   
-        initialRouteName="homeScreen"
+        initialRouteName="HomeScreen"
         
   
 
@@ -143,8 +151,8 @@ const TabNav = () =>{
         >
 
 <Tab.Screen
-       name="profileScreen"
-       component={profileScreen}
+       name="ProfileScreen"
+       component={ProfileScreen}
           options={{
             tabBarLabel: 'Profile',
      
@@ -158,8 +166,8 @@ const TabNav = () =>{
          
 
          <Tab.Screen
-          name="homeScreen"
-          component={homeScreen}
+          name="HomeScreen"
+          component={HomeScreen}
           options={({route})=>(
             {
              
@@ -175,8 +183,8 @@ const TabNav = () =>{
         
         />    
       <Tab.Screen
-        name="newRequestScreen"
-        component={newRequestScreen}
+        name="NewRequestScreen"
+        component={NewRequestScreen}
       
           options={{
             tabBarLabel: 'New Request',
@@ -193,7 +201,7 @@ const TabNav = () =>{
 }
 
 
-const profileScreen =()=> {
+const ProfileScreen =()=> {
   return (
     <Stack.Navigator
     screenOptions={{
@@ -226,37 +234,21 @@ const profileScreen =()=> {
      }} 
 
     initialRouteName={Login}>
-     
+
+
+
         <Stack.Screen
       name = "Login"
       component = {Login}
       />
-      {/*   <Stack.Screen
-      name = "Home"
-      component = {Home}
-      /> */}
+      {/*   */}
      <Stack.Screen
       name = "TabNav"
       component = {TabNav}
       />
 
-<Stack.Screen
-      name = "Completed"
-      component = {Completed}
-      />
-    
-      <Stack.Screen
-      name = "ActiveOrder"
-      component = {ActiveOrder}
-      />
-    
 
-
- <Stack.Screen
-      name = "NewRequest"
-      component = {NewRequest}
-      />
-
+  
 
      </Stack.Navigator> 
 

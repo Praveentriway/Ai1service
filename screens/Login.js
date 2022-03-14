@@ -16,7 +16,7 @@
    Text,
    useColorScheme,
    View,
-   Image,ImageBackground,TextInput,Button,   TouchableOpacity,ActivityIndicator,LogBox
+   Image,ImageBackground,TextInput,Button,   TouchableOpacity,ActivityIndicator,LogBox,Modal
  } from 'react-native';
  
  import {
@@ -28,6 +28,7 @@
 
  } from 'react-native/Libraries/NewAppScreen';
  import axios from 'axios';
+ import { useValidation } from 'react-native-form-validator';
  import AsyncStorage from '@react-native-async-storage/async-storage';
  import RestApiConstant from './RestApiConstant';
  import { NavigationContainer } from '@react-navigation/native';
@@ -56,6 +57,8 @@
 
     tokenKey()
   },[])
+
+
 
 
   const tokenKey = async() =>{
@@ -110,10 +113,14 @@
     console.log("res")
     onChangeBar(false)
      console.log(res.data.data.id)
+     var role = res.data
      var id = res.data.data.id
      var tok = res.data.data.token
+     var userRole = res.data.data.role[0]
+    
      await AsyncStorage.setItem('TokenStrings',tok)
      await AsyncStorage.setItem('UserID',id.toString())
+     await AsyncStorage.setItem('UserRole',userRole)
      onChangeEmail('')
      onChangePass('')
      navigation.navigate("TabNav")
@@ -122,7 +129,7 @@
     console.log("error")
     onChangeBar(false)
     console.log(error)
-    onChangeFail("Enter Valid Details!")
+    onChangeFail("Invalid username or password !")
    })
   }else{
     onChangeFail("Enter Valid Details!")
@@ -141,7 +148,7 @@
       <ScrollView>
       <View style={{marginTop:200,justifyContent:"center",alignItems:"center"}}>
       <Image source={require("../assets/ai1_logo.png")} style={{height:100,width:100,marginBottom:40,borderRadius:5}} />
-      <Text style={{color:"#FF0000"}}>{Fail}</Text>
+      <Text style={{color:"#FF0000",marginBottom:10}}>{Fail}</Text>
       <TextInput
       style={{ height:50,width:"85%" ,borderColor:"gray",color:"#2ea3f2" ,borderWidth: 1,marginBottom:20,padding:10 ,borderRadius:5}}
       onChangeText={text => onChangeEmail(text)}
@@ -182,8 +189,8 @@
               <Text style={{color:"#fff",textAlign:'center',fontSize:15}}>LOGIN</Text>
               </TouchableOpacity>
       </View>
-      <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={bar} size="large" color="#04B4AE" />
-
+{/*       <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={bar} size="large" color="#04B4AE" />
+ */}
      {/*  <PureChart data={sampleData} type='pie' /> */}
 
     {/*  <BarChart
@@ -195,7 +202,45 @@
   chartConfig={chartConfig}
   verticalLabelRotation={30}
 /> */}
+{/* <View style={{padding:10}}>
+         <Image source={require('../assets/han.png')} style={{height:178,width:238,padding:0,right:10,marginBottom:25}}/>
+         </View> */}
 
+{/* <Modal
+        animationType="fade"
+        transparent={true}
+        visible={bar}       
+      >
+           <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:10}} animating={true} size="large" color="#04B4AE" />
+        <Text style={{color:"#2ea3f2",fontWeight:'bold'}}>Loading....</Text>
+          </View>
+    
+        </View>
+      </Modal> */}
+
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={bar}
+      /*   onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }} */
+       
+      >
+           <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
+          </View>
+    
+        </View>
+      </Modal>
     
 </ScrollView>
     </View>
@@ -288,6 +333,31 @@
     marginBottom: 6,
     marginLeft: 16,
     marginRight: 16,
+  },
+  modalView: {
+    margin: 0,
+    width:'60%',
+    height:"18%",
+    backgroundColor:'#F0F8FF',
+    borderRadius: 10,
+    padding: 0,
+   /*  alignItems: "center", */
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,padding:0,alignItems:'center',justifyContent:'center'
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 22,
+    
+    
   }
  });
  

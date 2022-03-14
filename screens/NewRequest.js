@@ -35,26 +35,33 @@
    const isDarkMode = useColorScheme() === 'dark';
    const [count, onChangeCount] = React.useState('')
    const [userID, onChangeUserID] = React.useState()
+   const [staffID, setStaffID] = React.useState()
    const [token, onChangeToken] = React.useState()
    const [modalVisible, setModalVisible] = React.useState(false);
+   const [staffModalVisible, setStaffModalVisible] = React.useState(false);
    const [loading, setLoading] = React.useState(false);
    const [Message, setMessage] = React.useState(false);
+   const [StaffAssign, setStaffAssign] = React.useState(false);
    const [lineItem,setLineItem] = React.useState([])
-   const [modallineItem,setModalLineItem] = React.useState([])
+   const [staffList,setStaffList] = React.useState([])
+    const [modallineItem,setModalLineItem] = React.useState([])
    const [selected,onSelected] = React.useState([])
    const [toggleCheckBox, setToggleCheckBox] = React.useState(false)
    const [address,onAddress] = React.useState()
    const [assImg,setAssImg] = React.useState()
    const [assMess,setAssMess] = React.useState()
+   const [clickRole,setClickRole] = React.useState('ACCEPT')
+   const [userRole,setUserRole] = React.useState()
+   const [chooseCheckbox,setChooseCheckbox] = React.useState('#2ea3f2')
    const backgroundStyle = {
      backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
    };
    const [products, setProducts] = React.useState([]);
 
  React.useEffect(()=>{
-//  console.log(route.params.data)
-LogBox.ignoreLogs(["VirtualizedLists should never be nested"])
-tokenKey()
+   //console.log(route.params.data)
+   LogBox.ignoreLogs(["VirtualizedLists should never be nested"])
+   tokenKey()
 },[])
 
 
@@ -70,6 +77,18 @@ const tokenKey = async() =>{
      }).catch((err)=>{
        console.log('errr')
       })
+
+      await  AsyncStorage.getItem('UserRole').then((res)=>{
+        console.log('Role',res)  
+        /* wcfm_vendor */
+        setUserRole(res)
+        if(res == "wcfm_vendor"){
+          setClickRole('ASSIGN')
+        }
+      }).catch((err)=>{
+        console.log('err')
+       })
+
 
       await  AsyncStorage.getItem('TokenStrings').then((res)=>{
         console.log(res)
@@ -120,9 +139,43 @@ const tokenKey = async() =>{
         setLineItem(res.data)   
       }).catch((er)=>{
         setLoading(false)
+        setLineItem([])   
+
        console.log("sdf",er)
+       console.log("sdf",lineItem)
      })
    }
+
+
+   const getStaffList = () =>{
+    console.log('userID',userID)
+    console.log("Token",token)
+     setLoading(true)
+      axios.interceptors.request.use(
+        config=>{
+          config.headers.Authorization = `Bearer ${token}`
+          return config
+        },
+        error=>{
+          return Promise.reject(error)
+        }
+      )
+     /*  http://localhost/ai1service/wp-json/ai1service/v1 */
+
+        axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/vendor/${userID}/staffs`,{ headers: {"Authorization" : `Bearer ${token}`} })
+        .then((res) => {
+          console.log(res.data)
+          setLoading(false)
+          setStaffList(res.data)   
+          setModalVisible(!modalVisible)
+          setStaffModalVisible(!staffModalVisible)
+        }).catch((er)=>{
+          setLoading(false)
+          setStaffList([])   
+          console.log(er)
+      
+       })
+     }
 
 
 
@@ -191,12 +244,37 @@ const tokenKey = async() =>{
     });
     console.log('AAAA:', newData)
     setModalLineItem(newData)
+    setChooseCheckbox("#2ea3f2")
 
+  }
+
+  const assignStaffModal = (item) =>{
+    setStaffID(item.id)
+    setStaffAssign(!StaffAssign)
   }
 
 
 
-   console.log("ModallineItem",modallineItem)
+   /* console.log("ModallineItem",modallineItem) */
+
+   const StaffCardItem = (item,index) => {
+    var i = item
+    return(
+      <TouchableOpacity onPress={()=>{assignStaffModal(i)}} style={styles.staffcardview}>
+      <View style={{flexDirection:'row',width:"100%",alignItems:'center'}}>
+        <View style={{width:"30%",height:40,alignItems:'center',backgroundColor:'#fff'}}>
+        <Image source={require('../assets/username.png')} style={{height:40,width:40,padding:1}}/>
+        </View>
+         <View style={{width:"50%",height:40,padding:10}}>
+         <Text style={{padding:0,fontWeight:'bold',fontSize:16,color:"#000"}}>{i.user_nicename}</Text>
+         </View>
+         <View style={{width:"20%",height:40,alignItems:"flex-end",backgroundColor:'#fff',padding:5}}>
+        <Image source={require('../assets/right-arrow.png')} style={{height:30,width:30}}/>
+        </View>
+            </View>
+      </TouchableOpacity>
+     )
+   }
  
 
 
@@ -262,6 +340,8 @@ const tokenKey = async() =>{
    }
 
 
+
+
    
    const orderAccepted = () =>{
      modallineItem.map((i)=>{
@@ -279,9 +359,21 @@ const tokenKey = async() =>{
      var datas = {
        "line_items":products
      }
+      var rol = ''
+    if(userRole == 'wcfm_vendor'){
+        rol = staffID
+    }else{
+      rol = userID
+    }
+   setLoading(true)
 
-     setLoading(true)
-     axios.interceptors.request.use(
+     if(products.length <= 0){
+     console.log("0")
+     setChooseCheckbox("#FF0000")
+     setProducts([])
+     }else{
+
+     axios.interceptors.request.use( 
        config=>{
          config.headers.Authorization = `Bearer ${token}`
          return config
@@ -290,13 +382,13 @@ const tokenKey = async() =>{
          return Promise.reject(error)
        }
      )
+        console.log("datas",datas)
+        console.log("Assign-Role",rol)
 
-
-
-
-        axios.post(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v2/vendor-orders/${selected.id}/accept/${userID}`,datas,{ headers: {"Authorization" : `Bearer ${token}`} })
+        axios.post(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v2/vendor-orders/${selected.id}/accept/${rol}`,datas,{ headers: {"Authorization" : `Bearer ${token}`} })
         .then((res) => {
          console.log(res.data)
+         console.log("order",res)
          setLoading(false)
          setProducts([])
          setModalVisible(!modalVisible)
@@ -311,14 +403,14 @@ const tokenKey = async() =>{
         showMessage(ct)
         console.log("errre",er)
       })
-
+    }
 
    }
 
    const showMessage =(res)=>{
         if(res == 1){
           setAssImg(require('../assets/assign.png'))
-          setAssMess("Order assigned for you successfully")
+          setAssMess("Order assigned successfully")
        setMessage(!Message)
         }else{
           setAssImg(require('../assets/notassign.png'))
@@ -364,7 +456,7 @@ const tokenKey = async() =>{
            }}>
          <Image source={require('../assets/left.png')} style={{height:23,width:23,padding:12}}/>
          </TouchableOpacity>
-           {/*  <Image source={require('../assets/atoz.png')} style={{height:30,width:30,padding:10}}/> */}
+           {/* <Image source={require('../assets/atoz.png')} style={{height:30,width:30,padding:10}}/> */}
             <Text style={{padding:10,fontWeight:'bold',fontSize:16,color:"#000"}}>NEW ORDER</Text>
             </View>
              
@@ -395,8 +487,9 @@ const tokenKey = async() =>{
          </View>
        
          <View style={{alignItems:'center',alignContent:'center',flex:1,width:'100%'}}>
+      
          <ScrollView style={{marginTop:10,flex:1,width:'100%',padding:10}}>
-         
+         {lineItem && lineItem.length > 0 ? null :<Text style={{fontWeight:'500',fontSize:18,color:'#E74C3C',padding:10}}>No Order Arrival Now</Text>}
            <FlatList
          
         data={lineItem}
@@ -435,49 +528,38 @@ const tokenKey = async() =>{
         }}
        
       >
-        <View style={styles.centeredView}>
-          <View style={styles.modalView}>
-          
-            <View style={{backgroundColor:'#2ea3f2',marginBottom:20,borderRadius:10,borderBottomRightRadius:0,alignItems:'center'
+          <View style={styles.centeredView}>
+          <View style={styles.modalView}>         
+          <View style={{backgroundColor:'#2ea3f2',marginBottom:20,borderRadius:10,borderBottomRightRadius:0,alignItems:'center'
           ,borderBottomLeftRadius:0,padding:15}}>
-            <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:'#FFFFFF'}}>{selected.id}</Text>
-            </View>    
-      
-     
-<ScrollView>
-<Text style={{padding:3,fontWeight:'bold',fontSize:16,color:'#2ea3f2'}}>Order</Text> 
-<View style={{alignItems:'center',alignContent:'center',width:'100%'}}>
-<View style={{width:'90%',borderColor:'#2ea3f2',borderWidth:1,borderRadius:10,padding:10}}>
-<View style={{width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',padding:0}}>
+          <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:'#FFFFFF'}}>{selected.id}</Text>
+          </View>       
+          <ScrollView>
+          <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:'#2ea3f2'}}>Order</Text> 
+          <View style={{alignItems:'center',alignContent:'center',width:'100%'}}>
+          <View style={{width:'90%',borderColor:chooseCheckbox,borderWidth:1,borderRadius:10,padding:10}}>
+          <View style={{width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',padding:0}}>
           <Text style={{padding:0,fontWeight:'bold',fontSize:14,color:'#000',padding:0}}>Item</Text> 
-          <Text style={{padding:0,fontWeight:'bold',fontSize:14,color:'#000',padding:0,right:15}}>Quantity</Text> 
-         
+          <Text style={{padding:0,fontWeight:'bold',fontSize:14,color:'#000',padding:0,right:15}}>Quantity</Text>       
           </View>
-         <View style={{marginTop:10,width:'100%',padding:0}}>
-           
-           <FlatList
-         
-        data={modallineItem}
-        keyExtractor={item => item.item_id} 
-        renderItem={({ item,index }) => modalList(item)}
-      />
+          <View style={{marginTop:10,width:'100%',padding:0}}>
+           <FlatList      
+           data={modallineItem}
+           keyExtractor={item => item.item_id} 
+           renderItem={({ item,index }) => modalList(item)}
+           />
            </View>
-
-         </View> 
+           </View> 
            </View>
-
             <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:'#2ea3f2',padding:10}}>Location</Text> 
             <View style={{width:'100%',alignItems:'center'}}>
             <View style={{width:'90%',borderColor:'#2ea3f2',borderWidth:1,borderRadius:10}}>
             <View style={{width:'90%',flexDirection:'row'}}>
             <Text style={{fontWeight:'bold',fontSize:14,color:'#000',padding:10}}>Location:</Text> 
             <Text style={{fontWeight:'500',fontSize:14,color:'#000',padding:10}}>{address}</Text> 
+            </View>           
+            </View>         
             </View>
-           
-            </View>
-         
-            </View>
-
             <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:'#2ea3f2',padding:5}}>Customer</Text> 
             <View style={{width:'100%',height:"15%",alignItems:'center'}}>
             <View style={{width:'90%',borderColor:'#2ea3f2',borderWidth:1,borderRadius:10}}>
@@ -505,17 +587,11 @@ const tokenKey = async() =>{
             </View>
          
             </View>
-
-     
-
-
-         
-
           <View>
 
    
-    <View style={{flexDirection:'row',justifyContent:'space-around',marginTop:20,padding:10,height:"15%",marginBottom:30}}>
-    <TouchableOpacity
+        <View style={{flexDirection:'row',justifyContent:'space-around',marginTop:20,padding:10,height:"15%",marginBottom:30}}>
+            <TouchableOpacity
               style={{borderRadius:15,borderColor:'#000',borderWidth:1,width:100,height:35,alignItems:'center',justifyContent:'center'}}
               onPress={() =>
                  {setProducts([]),
@@ -523,27 +599,65 @@ const tokenKey = async() =>{
             }>
               <Text style={{color:'#000'}}>CANCEL</Text>
             </TouchableOpacity>
-    <TouchableOpacity
+            <TouchableOpacity
               style={{borderRadius:15,backgroundColor:'#2ea3f2',width:100,height:35,
               alignItems:'center',justifyContent:'center'}}
-              onPress={() =>
-                 {orderAccepted()
+              onPress={()=>{
+                if(userRole == "wcfm_vendor"){
+                getStaffList()
+                }else{
+                orderAccepted()
                 }
-            }>
-              <Text style={{color:'#FFFFFF',fontWeight:'bold'}}>ACCEPT</Text>
+               
+                }}>
+              <Text style={{color:'#FFFFFF',fontWeight:'bold'}}>{clickRole}</Text>
             </TouchableOpacity>
-           </View>
-          </View>
-          </ScrollView>
-
-
-         </View>
-         
+        </View>
+        </View>
+        </ScrollView>
+        </View>         
         </View>
       </Modal>
 
-
       <Modal
+        animationType="fade"
+        transparent={true}
+        visible={staffModalVisible}
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setStaffModalVisible(!staffModalVisible);
+        }}
+       
+      >
+          <View style={styles.centeredView}>
+          <View style={styles.modalView}>         
+          <View style={{backgroundColor:'#2ea3f2',marginBottom:20,borderRadius:10,borderBottomRightRadius:0,alignItems:'center'
+          ,borderBottomLeftRadius:0,padding:15}}>
+          <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:'#FFFFFF'}}>{selected.id}</Text>
+          </View>       
+          <View style={{alignItems:'center',alignContent:'center',flex:1,width:'100%'}}>
+      
+      <ScrollView style={{marginTop:10,flex:1,width:'100%',padding:10}}>
+     
+        <FlatList
+      
+     data={staffList}
+     keyExtractor={item => item.id} 
+     renderItem={({ item,index }) => StaffCardItem(item)}
+   />
+ 
+        </ScrollView>
+
+      </View>
+           </View>
+           </View>
+           </Modal>
+
+
+
+
+
+           <Modal
         animationType="fade"
         transparent={true}
         visible={loading}
@@ -555,15 +669,17 @@ const tokenKey = async() =>{
       >
            <View style={styles.centeredView}>
           <View style={styles.loads}>
-          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
-        <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
           </View>
     
         </View>
       </Modal>
 
 
-      <Modal
+       <Modal
         animationType="fade"
         transparent={true}
         visible={Message}
@@ -572,19 +688,49 @@ const tokenKey = async() =>{
           setModalVisible(!modalVisible);
         }} */
        
-      >
-           <View style={styles.centeredView}>
-          <View style={styles.Msg}>
-          <Image source={assImg} style={{height:70,width:70,padding:1,marginBottom:30}}/>
+       >
+        <View style={styles.centeredView}>
+        <View style={styles.Msg}>
+        <Image source={assImg} style={{height:70,width:70,padding:1,marginBottom:30}}/>
         <Text style={{color:'#000',fontWeight:'bold',fontSize:14,marginBottom:10}}>{assMess}</Text>
         <TouchableOpacity onPress={()=>{setMessageFun()}} style={{width:'100%',alignItems:'flex-end',justifyContent:'space-around',padding:10,right:10}}>
         <Text style={{color:'#2ea3f2',fontWeight:'bold',fontSize:16,}}>Close</Text>
         </TouchableOpacity>
-          </View>
+        </View>
     
         </View>
-      </Modal>
-
+        </Modal>
+        <Modal
+        animationType="fade"
+        transparent={true}
+        visible={StaffAssign}
+      /*   onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }} */
+       
+       >
+        <View style={styles.centeredView}>
+        <View style={styles.Msg}>
+        <Image source={require('../assets/verified-user.png')} style={{height:70,width:70,padding:1,marginBottom:30}}/>
+        <Text style={{color:'#000',fontWeight:'bold',fontSize:14,marginBottom:10}}>Are you sure you want to assign job?</Text>
+        <View style={{flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:10}}>
+        <TouchableOpacity onPress={()=>{setStaffAssign(!StaffAssign)}} style={{width:'50%',alignItems:'center',justifyContent:'space-around',padding:10,right:0}}>
+        <Text style={{color:'#2ea3f2',fontWeight:'bold',fontSize:16,}}>Cancel</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={()=>{
+          setStaffAssign(!StaffAssign)
+          orderAccepted()
+        }}
+           style={{width:'50%',alignItems:'center',justifyContent:'space-around',padding:10,right:0}}>
+        <Text style={{color:'#2ea3f2',fontWeight:'bold',fontSize:16,}}>Assign</Text>
+        </TouchableOpacity>
+        </View>
+     
+        </View>
+    
+        </View>
+        </Modal>
            
      </SafeAreaView>
    );
@@ -614,6 +760,26 @@ const tokenKey = async() =>{
    },
    cardview:{
     height: 100,
+    width:'100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.white,
+    shadowColor: "#2ea3f2",
+    borderColor:"#2ea3f2",
+    borderWidth:0.5,
+    shadowOpacity: 2,
+    shadowRadius: 18,
+    elevation: 8,
+    /* paddingLeft: 16,
+    paddingRight: 14, */
+    marginTop: 6,
+    marginBottom: 6,
+/*     marginLeft: 16,
+    marginRight: 16, */
+    borderRadius:5
+   },
+   staffcardview:{
+    height: 60,
     width:'100%',
     alignItems: 'center',
     justifyContent: 'center',

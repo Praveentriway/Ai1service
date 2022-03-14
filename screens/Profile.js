@@ -122,7 +122,7 @@
                <Feather name="smartphone" color={"#FFFFFF"} size={22}/>
                </View>
                <View style={{width:'50%',right:10}}>
-               <Text style={{fontWeight:'bold',fontSize:20,color:'#000'}}>Contact Us</Text>
+               <Text style={{fontWeight:'bold',fontSize:20,color:'#000'}}>About Us</Text>
                </View>
              
                </View>

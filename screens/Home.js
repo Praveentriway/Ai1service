@@ -42,12 +42,14 @@ import RestApiConstant from './RestApiConstant';
    const [modalVisible, setModalVisible] = React.useState(false);
    const [bar, onChangeBar] = React.useState(false)
    const [touchOut, onTouchOut] = React.useState(false)
+   const [userRole,setUserRole] = React.useState()
    const isFocused = useIsFocused();
    const backgroundStyle = {
      backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
    };
    const [userID, onChangeUserID] = React.useState()
    const [token, onChangeToken] = React.useState()
+   const [cardHieght, onCardHieght] = React.useState(50)
    const startValue = new Animated.Value(0);
    const endValue = 20;
    const duration = 500;
@@ -73,14 +75,23 @@ import RestApiConstant from './RestApiConstant';
 
              
              
-    await  AsyncStorage.getItem('UserID').then((res)=>{
-         console.log(res)
-       
-    
-       
+       await  AsyncStorage.getItem('UserID').then((res)=>{
+         console.log(res)      
        }).catch((err)=>{
          console.log('err')
         })
+
+
+        await  AsyncStorage.getItem('UserRole').then((res)=>{
+          console.log('Role',res)  
+          /* wcfm_vendor */
+          setUserRole(res)
+          if(res == "wcfm_vendor"){
+            onCardHieght(20)
+          }
+        }).catch((err)=>{
+          console.log('err')
+         })
 
         await  AsyncStorage.getItem('TokenStrings').then((res)=>{
           console.log(res)
@@ -138,6 +149,8 @@ import RestApiConstant from './RestApiConstant';
       }
     )
   //  ${RestApiConstant.LOCAL_URL}/ai1service
+
+
       axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/dashboard/staff/${r}/count`,{ headers: {"Authorization" : `Bearer ${res}`} })
       .then((res) => {
         console.log(res.data)
@@ -169,7 +182,7 @@ import RestApiConstant from './RestApiConstant';
       backgroundColor="#2ea3f2"
        barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
        <View style={{backgroundColor:"#2ea3f2",borderBottomRightRadius:30}}>
-       <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:0,padding:25,width:'100%'}}>
+       <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:0,padding:20,width:'100%'}}>
             
              
          <View style={{flexDirection:'row',justifyContent:'space-between',width:120,alignItems:'center'}}>
@@ -202,18 +215,17 @@ import RestApiConstant from './RestApiConstant';
           {/*   <ImageBackground source={require('../assets/bc1.jpg')} style={{height:100,width:'90%'}}>
 
             </ImageBackground> */}
-            <View style={{marginBottom:5}}>
+          {/*   <View style={{marginBottom:5}}>
             <Text style={{fontSize:18,fontWeight:'bold',marginBottom:0,color:'#FFFFFF'}}>Welcome Praveen...</Text>
             </View>
-           
-            <Animated.View  style={[{transform: [{translateX: startValue }]},{right:20,height:100,width:"90%",backgroundColor:"#fff",borderRadius:10,marginBottom:0,marginTop:10,justifyContent:"space-around",flexDirection:"row",marginBottom:20,alignContent:'center',alignItems:'center'}]}>
-           
-      
+            */}
+           <Animated.View  style={[{transform: [{translateX: startValue }]},{right:20,height:100,width:"90%",backgroundColor:"#fff",borderRadius:10,marginBottom:0,marginTop:10,justifyContent:"space-around",flexDirection:"row",marginBottom:20,alignContent:'center',alignItems:'center'}]}>
+   
            <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
 
         
-          <Text style={{color:"#0B0B3B",fontWeight:'bold',fontSize:24}}>{New}</Text>
-          <Text  style={{color:'#000',fontWeight:'500',fontSize:14}}>New Request</Text>
+          <Text style={{color:"#0B0B3B",fontWeight:'bold',fontSize:28}}>{New}</Text>
+          <Text style={{color:'#000',fontWeight:'500',fontSize:14}}>New Order</Text>
           </View>
 
           <View style={{height:40,width:2,backgroundColor:"#2ea3f2"}}></View>
@@ -221,14 +233,14 @@ import RestApiConstant from './RestApiConstant';
           <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
 
         
-        <Text style={{color:"#B40404",fontWeight:'bold',fontSize:24}}>{Active}</Text>
+        <Text style={{color:"#B40404",fontWeight:'bold',fontSize:28}}>{Active}</Text>
         <Text  style={{color:'#000',fontWeight:'500',fontSize:14}}>Active Order</Text>
          </View>
          <View style={{height:40,width:2,backgroundColor:"#2ea3f2"}}></View>
       <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
 
         
-          <Text style={{color:"#088A08",fontWeight:'bold',fontSize:24}}>{Complete}</Text>
+          <Text style={{color:"#088A08",fontWeight:'bold',fontSize:28}}>{Complete}</Text>
           <Text  style={{color:'#000',fontWeight:'500',fontSize:14}}>Completed</Text>
           </View>
        
@@ -248,8 +260,10 @@ import RestApiConstant from './RestApiConstant';
        </View>
        </View> */}
          </View>
+       
+         <ScrollView >
          
-         <View style={{flex:0,marginBottom:0,width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:50}}>
+         <View style={{flex:0,marginBottom:0,width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:cardHieght}}>
           <TouchableOpacity onPress={()=>{navigation.navigate('NewRequest',{data:"New"})}} style={styles.cardview}>
           <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
           <View style={{backgroundColor:"#fff",color:"#fff",width:30,height:30,borderRadius:30,borderColor:"#04B4AE",borderWidth:2,alignItems:'center',right:40,bottom:1}}>
@@ -267,14 +281,14 @@ import RestApiConstant from './RestApiConstant';
           </View>
           <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
          {/*  <Image source={require('../assets/active.png')} style={{height:50,width:50,padding:12}}/> */}
-         <Animated.Image source={require('../assets/active.png')} style={[{transform: [{translateX: startValue }]},{height:50,width:50,padding:0,right:20}]}/>
+         <Animated.Image source={require('../assets/fast.png')} style={[{transform: [{translateX: startValue }]},{height:50,width:50,padding:0,right:20}]}/>
 
           <Text  style={{color:'#000',fontWeight:'bold',fontSize:14}}>Active Order</Text>
           </View>
           </TouchableOpacity>
          </View>
 
-         <View style={{flex:0,marginBottom:0,width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:50}}>
+         <View style={{flex:0,marginBottom:0,width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:cardHieght}}>
          <TouchableOpacity onPress={()=>{navigation.navigate('Completed')}} style={styles.cardview}>
          <View style={{backgroundColor:"#fff",color:"#fff",width:30,height:30,borderRadius:30,borderColor:"#088A08",borderWidth:2,alignItems:'center',right:40,bottom:1}}>
           <Text style={{color:"#000",fontSize:18,fontWeight:'bold'}}>{Complete}</Text>
@@ -287,10 +301,10 @@ import RestApiConstant from './RestApiConstant';
           </View>
           </TouchableOpacity>
           <View style={styles.cardview}>
-          <View style={{backgroundColor:"#fff",color:"#fff",width:30,height:30,borderRadius:30,borderColor:"#0B0B61",borderWidth:2,alignItems:'center',right:40,bottom:1}}>
-          <Text style={{color:"#000",fontSize:18,fontWeight:'bold'}}>{Message}</Text>
-          </View>
-          <View  style={{justifyContent:"space-around",flexDirection:"column",marginBottom:0,alignContent:'center',alignItems:'center'}}>
+          {/* <View style={{backgroundColor:"#fff",color:"#fff",width:30,height:30,borderRadius:30,borderColor:"#0B0B61",borderWidth:2,alignItems:'center',right:40,bottom:1}}>
+          <Text style={{color:"#000",fontSize:18,fontWeight:'bold'}}>{{Message}}</Text>
+          </View> */}
+          <View  style={{justifyContent:"space-around",flexDirection:"column",marginTop:10,marginBottom:0,alignContent:'center',alignItems:'center'}}>
         {/*   <Image source={require('../assets/message.png')} style={{height:50,width:50,padding:12}}/> */}
         <Animated.Image source={require('../assets/message.png')} style={[{transform: [{translateX: startValue }]},{height:50,width:50,padding:0,right:20}]}/>
 
@@ -298,8 +312,58 @@ import RestApiConstant from './RestApiConstant';
           </View>
           </View>
          </View>
+
+
+    
+
+         {userRole != "wcfm_vendor" ? null :  
+         
+
+
+      <View style={{flex:0,marginBottom:0,width:'100%',flexDirection:'row',justifyContent:'space-around',alignItems:'center',marginTop:cardHieght}}>
+         <TouchableOpacity onPress={()=>{navigation.navigate('StaffList')}} style={styles.cardview}>
+   
+          <View  style={{justifyContent:"space-around",flexDirection:"column",marginTop:10,alignContent:'center',alignItems:'center'}}>
+        
+          <Animated.Image source={require('../assets/staff.png')} style={[{transform: [{translateX: startValue }]},{height:50,width:50,padding:0,right:20}]}/>
+
+          <Text  style={{color:'#000',fontWeight:'bold',fontSize:14}}>Staff Record</Text>
+          </View>
+          </TouchableOpacity>
+          <View style={styles.cardview}>
+        
+          <View  style={{justifyContent:"space-around",flexDirection:"column",marginTop:10,alignContent:'center',alignItems:'center'}}>
+
+        <Animated.Image source={require('../assets/rating.png')} style={[{transform: [{translateX: startValue }]},{height:50,width:50,padding:0,right:20}]}/>
+
+          <Text  style={{color:'#000',fontWeight:'bold',fontSize:14}}>Reviews</Text>
+          </View>
+          </View>
+         </View>
+        }
+         </ScrollView>
+     
+         <View style={{padding:0}}>
+    {/*      <Image source={require('../assets/han2.png')} style={{height:68,width:'100%',padding:0,right:0,marginBottom:25}}/> */}
+         </View>
       
-         <Modal
+         {/* <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+    
+       
+      >
+           <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#04B4AE" />
+        <Text style={{color:"#2ea3f2",fontWeight:'bold'}}>Loading....</Text>
+          </View>
+    
+        </View>
+      </Modal> */}
+
+      <Modal
         animationType="fade"
         transparent={true}
         visible={modalVisible}
@@ -311,8 +375,10 @@ import RestApiConstant from './RestApiConstant';
       >
            <View style={styles.centeredView}>
           <View style={styles.modalView}>
-          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#04B4AE" />
-        <Text style={{color:"#2ea3f2",fontWeight:'bold'}}>Loading....</Text>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
           </View>
     
         </View>
@@ -366,7 +432,7 @@ import RestApiConstant from './RestApiConstant';
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
-
+ 
   },
    sectionContainer: {
      marginTop: 32,
@@ -396,6 +462,23 @@ import RestApiConstant from './RestApiConstant';
     shadowOpacity: 2,
     shadowRadius: 8,
     elevation: 8,
+    paddingLeft: 16,
+    paddingRight: 14,
+    marginTop: 6,
+    marginBottom: 6,
+    marginLeft: 16,
+    marginRight: 16,
+    borderRadius:5
+   },
+   dcardview:{
+    height: 120,
+    width:120,
+
+  
+
+
+ 
+    
     paddingLeft: 16,
     paddingRight: 14,
     marginTop: 6,

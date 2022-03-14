@@ -26,8 +26,7 @@
    ReloadInstructions,
  } from 'react-native/Libraries/NewAppScreen';
 
- import Home from './Home';
- 
+ import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
  import axios from 'axios';
  import AsyncStorage from '@react-native-async-storage/async-storage';
  import RestApiConstant from './RestApiConstant';
@@ -87,6 +86,9 @@
        }
 
 
+   
+
+
        const getVendorOrder = (res,r) =>{
         console.log("userID",r)
         console.log("token",res)
@@ -112,6 +114,39 @@
            })
          }
 
+
+       const imagePicker =async () =>{
+        const result = await launchImageLibrary(options)
+       console.log(result)
+        /* ImagePicker.showImagePicker(options, res => {
+
+          console.log('Response = ', res);
+    
+          if (res.didCancel) {
+    
+            console.log('User cancelled image picker');
+    
+          } else if (res.error) {
+    
+            console.log('ImagePicker Error: ', res.error);
+    
+          } else if (res.customButton) {
+    
+            console.log('User tapped custom button: ', res.customButton);
+    
+            alert(res.customButton);
+    
+          } else {
+    
+            let source = res;
+    
+            console.log('User tapped custom button: ', res);
+    
+          }
+    
+        }); */
+       }
+         
          const modalList=(item)=>{
            var accept = ''
            var complete = ''
@@ -171,10 +206,7 @@
             </View>
              
          <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',width:80}}  >
-<TouchableOpacity style={{flexDirection:'row',width:60}} onPress={()=>
-  {gotoMessage()
-    asyncStorageSet() 
-  }}>
+<TouchableOpacity style={{flexDirection:'row',width:60}} >
 
 {/* <Image source={require('../assets/bel.png')} style={{height:25,width:25,padding:10}}/>
 <View style={{backgroundColor:Colors,color:"#fff",width:15,height:15,borderRadius:30,alignItems:'center',right:12}}>
@@ -238,8 +270,10 @@
       >
            <View style={styles.centeredView}>
           <View style={styles.loads}>
-          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
-        <Text style={{color:'#04B4AE',fontWeight:'bold'}}>Loading....</Text>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
           </View>
     
         </View>

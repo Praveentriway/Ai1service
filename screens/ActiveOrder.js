@@ -44,12 +44,14 @@
    const [signPad, setSignPad] = React.useState(false);
    const [selected,onSelected] = React.useState([])
    const [signUri,onSignUri] = React.useState()
-   
+   const [activeDate ,setActiveDate] = React.useState('Accepted Date')
+   const [activeLabel,setActiveLabel] = React.useState('Mark-As-Complete')
    const [Message, setMessage] = React.useState(false);
    const [assImg,setAssImg] = React.useState()
    const [assMess,setAssMess] = React.useState()
    const [pay,setPay] = React.useState()
 
+   const [userRole,setUserRole] = React.useState()
 
 
   React.useEffect(()=>{
@@ -63,18 +65,20 @@
   };
 
 const _signaturePadChange = ({base64DataUrl}) => {
-  /*   console.log("Got new signature: " + base64DataUrl.replace("data:image/png;base64,",""));
-    console.log("Got new signature: " + base64DataUrl);
+   // console.log("Got new signature: " + base64DataUrl.replace("data:image/png;base64,",""));
+  // console.log("Got new signature: " + base64DataUrl);
     const imageData =base64DataUrl.replace("data:image/png;base64,","");
     const imagePath = `${RNFS.ExternalDirectoryPath}/${Math.random().toString(36).substring(7)}image.jpg`;
-          onSel(imagePath)
+          //onSel(imagePath)
     RNFS.writeFile(imagePath, imageData, 'base64')
-    .then(() => {console.log('Image converted to jpg and saved at ' + 'file://'+imagePath),
+    .then(() => {
 
-      onSignUri('file://'+imagePath)
+      console.log('Image converted to jpg and saved at ' + 'file:/'+imagePath),
+
+      onSignUri('file:/'+imagePath)
 
 }
-    ); */
+    );
   
     onChangePass(base64DataUrl)
   };
@@ -84,16 +88,19 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
     const tokenKey = async() =>{
 
-        
-             
-  /*     await AsyncStorage.getItem('UserID').then((res)=>{
-           console.log('res',res)
-        
-           onChangeUserID(res)
-         
-         }).catch((err)=>{
-           console.log('errr')
-          }) */
+
+          await  AsyncStorage.getItem('UserRole').then((res)=>{
+            console.log('Role',res)  
+            /* wcfm_vendor */
+            setUserRole(res)
+            if(res == "wcfm_vendor"){
+              setActiveDate("Assigned Date")
+              setActiveLabel('Work-In-Progress')
+            }
+          }).catch((err)=>{
+            console.log('err')
+           })
+  
     
           await  AsyncStorage.getItem('TokenStrings').then((res)=>{
             console.log(res)
@@ -136,7 +143,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
             axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/wip/staff/${r}`,{ headers: { "Authorization" : `Bearer ${res}`} })
             .then((res) => {
-              console.log(res.data)
+              //console.log("resdff",res)
               setLoading(false)
               setLineItem(res.data)   
             }).catch((er)=>{
@@ -154,10 +161,72 @@ const _signaturePadChange = ({base64DataUrl}) => {
                 setModalVisible(!modalVisible)
          }
 
+         const uploadSignFile= (con) =>{
+          setLoading(!loading)
+          var data = new FormData();         
+        /*   data.append('file',
+            {
+               uri:signUri,
+               name:'userProfile.jpg',
+               type:'image/jpeg'
+            }); */
+            data.append('file', Pass);
+          data.append('filename','userProfile.jpg');
+          console.log("AAAAAA",signUri)
+
+
+          axios.post(`${RestApiConstant.BASE_URL}/wp-json/wp/v2/media`,data,
+                { headers: {'Content-type':`image/jpeg; boundary=${data._boundary}`,'Content-Disposition':'userProfile.jpg',"Authorization" : `Bearer ${token}`} })
+                .then((res) => {
+                    setLoading(!loading)
+                  console.log("AAAAAA",res)
+                  setSignPad(!signPad)
+                  var ct = 1
+                  showMessage(ct)          
+                }).catch((er)=>{
+                    setLoading(!loading)
+                    setSignPad(!signPad)
+                    var ct = 0
+                  showMessage(ct)  
+                 console.log("eee",er)
+               })
+
+         }
+
+         const uploadSignFil = async () => {
+          // Check if any file is selected or not
+          if (signUri != null) {
+            // If file selected then create FormData
+       
+            const data = new FormData();     
+            data.append('file', signUri);
+            data.append('filename','userProfile.jpg');
+            // Please change file upload URL
+            let res = await fetch(
+              `${RestApiConstant.BASE_URL}/wp-json/wp/v2/media`,
+              {
+                method: 'post',
+                body: data,
+                headers: {
+                  'Content-Type': 'image/jpeg;',
+                },
+              }
+            );
+            let responseJson = await res.json();
+            if (responseJson.status == 1) {
+              alert('Upload Successful',responseJson);
+            }
+          } else {
+            // If no file selected the show alert
+            alert('Please Select File first');
+          }
+        };
+
          
          const completeOrder = () =>{
               setLoading(!loading)
-                      axios.interceptors.request.use(
+              
+                axios.interceptors.request.use(
                 config=>{
                   config.headers.Authorization = `Bearer ${token}`               
                   return config
@@ -179,7 +248,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
                 }).catch((er)=>{
                     setLoading(!loading)
                     setSignPad(!signPad)
-                    var ct = 1
+                    var ct = 0
                   showMessage(ct)  
                  console.log(er)
                })
@@ -208,7 +277,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
            var complete = ''
            setPay(item)
                 if(item.accepted_date != null){
-                  console.log(item.accepted_date)
+             //     console.log(item.accepted_date)
                  let p = item.accepted_date
                  accept = p.substring(0,10)
                  acceptedtime = p.substring(11,19)
@@ -216,7 +285,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
                 }
               
                 if(item.complete_date == null){
-                  console.log("sd",item.complete_date)
+                //  console.log("sd",item.complete_date)
               /*    let c = item.completed_date
 
                  complete = c.substring(1,16) */
@@ -238,7 +307,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
          <Text style={{padding:3,fontWeight:'bold',fontSize:16,color:"#2ea3f2"}}>{item.order_id}</Text>
      
          <Text style={{padding:3,fontWeight:'bold',fontSize:12,color:"#000"}}>{item.name}</Text>
-         <Text style={{padding:3,fontWeight:'400',fontSize:10,color:"#000"}}>Accepted Date :</Text>
+         <Text style={{padding:3,fontWeight:'400',fontSize:10,color:"#000"}}>{activeDate} :</Text>
          <Text style={{padding:3,fontWeight:'bold',fontSize:12,color:"#000"}}>{accept}</Text>
          </View>
          <View style={{width:"30%",height:'100%',alignContent:'center',flexDirection:'column',padding:5}}>
@@ -248,8 +317,13 @@ const _signaturePadChange = ({base64DataUrl}) => {
             <Text style={{padding:0,fontWeight:'bold',fontSize:12,color:"#000"}}>{acceptedtime}</Text>
    
             </View>
-            <TouchableOpacity onPress={()=>{selectedItems(item)}} style={{backgroundColor:'#000',borderRadius:15,alignItems:'center',justifyContent:'center',padding:5}}>
-                <Text style={{color:'#fff',fontWeight:'bold',fontSize:11}}>Mark As Complete</Text>
+            <TouchableOpacity onPress={()=>{
+              if(userRole != 'wcfm_vendor'){
+                   selectedItems(item)
+              }          
+              }} 
+              style={{backgroundColor:'#000',borderRadius:15,alignItems:'center',justifyContent:'center',padding:8,width:'100%'}}>
+                <Text style={{color:'#fff',fontWeight:'bold',fontSize:10}}>{activeLabel}</Text>
             </TouchableOpacity>
          </View>
       
@@ -459,9 +533,8 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
             <View style={{height:180, color:"#000000" ,borderWidth:1,borderColor:'#000'}}>
        
-                    <SignaturePad style={{height:180, color:"#000000" ,padding:5 }} dotSize={2} onError={_signaturePadError}
-                        onChange={_signaturePadChange}
-                        style={{flex: 1, backgroundColor: 'white'}}/>
+                    <SignaturePad style={{flex: 1, backgroundColor: 'white',height:180, color:"#000000" ,padding:5 }} dotSize={2} onError={_signaturePadError} 
+                    onChange={_signaturePadChange} />
             </View>
           
           <View>
@@ -480,8 +553,8 @@ const _signaturePadChange = ({base64DataUrl}) => {
               style={{borderRadius:15,backgroundColor:'#2ea3f2',width:100,height:35,
               alignItems:'center',justifyContent:'center'}}
               onPress={() =>
-                 {/*  uploadSignFile(token,userID) */
-                    completeOrder()
+                 { uploadSignFile(token)
+                   // completeOrder()
                 }
             }>
               <Text style={{color:'#FFFFFF',fontWeight:'bold'}}>Complete</Text>
@@ -495,7 +568,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
 
 
-         <Modal
+      <Modal
         animationType="fade"
         transparent={true}
         visible={loading}
@@ -507,8 +580,10 @@ const _signaturePadChange = ({base64DataUrl}) => {
       >
            <View style={styles.centeredView}>
           <View style={styles.loads}>
-          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
-        <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
           </View>
     
         </View>
