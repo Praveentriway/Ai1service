@@ -28,6 +28,7 @@
 
  } from 'react-native/Libraries/NewAppScreen';
  import axios from 'axios';
+ import { useValidation } from 'react-native-form-validator';
  import AsyncStorage from '@react-native-async-storage/async-storage';
  import RestApiConstant from './RestApiConstant';
  import { NavigationContainer } from '@react-navigation/native';
@@ -56,6 +57,8 @@
 
     tokenKey()
   },[])
+
+
 
 
   const tokenKey = async() =>{
@@ -203,7 +206,7 @@
          <Image source={require('../assets/han.png')} style={{height:178,width:238,padding:0,right:10,marginBottom:25}}/>
          </View> */}
 
-<Modal
+{/* <Modal
         animationType="fade"
         transparent={true}
         visible={bar}       
@@ -212,6 +215,28 @@
           <View style={styles.modalView}>
           <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:10}} animating={true} size="large" color="#04B4AE" />
         <Text style={{color:"#2ea3f2",fontWeight:'bold'}}>Loading....</Text>
+          </View>
+    
+        </View>
+      </Modal> */}
+
+
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={bar}
+      /*   onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+          setModalVisible(!modalVisible);
+        }} */
+       
+      >
+           <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
           </View>
     
         </View>

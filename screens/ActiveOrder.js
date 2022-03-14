@@ -65,18 +65,20 @@
   };
 
 const _signaturePadChange = ({base64DataUrl}) => {
-  /*   console.log("Got new signature: " + base64DataUrl.replace("data:image/png;base64,",""));
-    console.log("Got new signature: " + base64DataUrl);
+   // console.log("Got new signature: " + base64DataUrl.replace("data:image/png;base64,",""));
+  // console.log("Got new signature: " + base64DataUrl);
     const imageData =base64DataUrl.replace("data:image/png;base64,","");
     const imagePath = `${RNFS.ExternalDirectoryPath}/${Math.random().toString(36).substring(7)}image.jpg`;
-          onSel(imagePath)
+          //onSel(imagePath)
     RNFS.writeFile(imagePath, imageData, 'base64')
-    .then(() => {console.log('Image converted to jpg and saved at ' + 'file://'+imagePath),
+    .then(() => {
 
-      onSignUri('file://'+imagePath)
+      console.log('Image converted to jpg and saved at ' + 'file:/'+imagePath),
+
+      onSignUri('file:/'+imagePath)
 
 }
-    ); */
+    );
   
     onChangePass(base64DataUrl)
   };
@@ -86,16 +88,6 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
     const tokenKey = async() =>{
 
-        
-             
-  /*     await AsyncStorage.getItem('UserID').then((res)=>{
-           console.log('res',res)
-        
-           onChangeUserID(res)
-         
-         }).catch((err)=>{
-           console.log('errr')
-          }) */
 
           await  AsyncStorage.getItem('UserRole').then((res)=>{
             console.log('Role',res)  
@@ -151,7 +143,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
             axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/wip/staff/${r}`,{ headers: { "Authorization" : `Bearer ${res}`} })
             .then((res) => {
-              console.log("resdff",res)
+              //console.log("resdff",res)
               setLoading(false)
               setLineItem(res.data)   
             }).catch((er)=>{
@@ -168,6 +160,67 @@ const _signaturePadChange = ({base64DataUrl}) => {
                 console.log(item)
                 setModalVisible(!modalVisible)
          }
+
+         const uploadSignFile= (con) =>{
+          setLoading(!loading)
+          var data = new FormData();         
+        /*   data.append('file',
+            {
+               uri:signUri,
+               name:'userProfile.jpg',
+               type:'image/jpeg'
+            }); */
+            data.append('file', Pass);
+          data.append('filename','userProfile.jpg');
+          console.log("AAAAAA",signUri)
+
+
+          axios.post(`${RestApiConstant.BASE_URL}/wp-json/wp/v2/media`,data,
+                { headers: {'Content-type':`image/jpeg; boundary=${data._boundary}`,'Content-Disposition':'userProfile.jpg',"Authorization" : `Bearer ${token}`} })
+                .then((res) => {
+                    setLoading(!loading)
+                  console.log("AAAAAA",res)
+                  setSignPad(!signPad)
+                  var ct = 1
+                  showMessage(ct)          
+                }).catch((er)=>{
+                    setLoading(!loading)
+                    setSignPad(!signPad)
+                    var ct = 0
+                  showMessage(ct)  
+                 console.log("eee",er)
+               })
+
+         }
+
+         const uploadSignFil = async () => {
+          // Check if any file is selected or not
+          if (signUri != null) {
+            // If file selected then create FormData
+       
+            const data = new FormData();     
+            data.append('file', signUri);
+            data.append('filename','userProfile.jpg');
+            // Please change file upload URL
+            let res = await fetch(
+              `${RestApiConstant.BASE_URL}/wp-json/wp/v2/media`,
+              {
+                method: 'post',
+                body: data,
+                headers: {
+                  'Content-Type': 'image/jpeg;',
+                },
+              }
+            );
+            let responseJson = await res.json();
+            if (responseJson.status == 1) {
+              alert('Upload Successful',responseJson);
+            }
+          } else {
+            // If no file selected the show alert
+            alert('Please Select File first');
+          }
+        };
 
          
          const completeOrder = () =>{
@@ -195,7 +248,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
                 }).catch((er)=>{
                     setLoading(!loading)
                     setSignPad(!signPad)
-                    var ct = 1
+                    var ct = 0
                   showMessage(ct)  
                  console.log(er)
                })
@@ -224,7 +277,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
            var complete = ''
            setPay(item)
                 if(item.accepted_date != null){
-                  console.log(item.accepted_date)
+             //     console.log(item.accepted_date)
                  let p = item.accepted_date
                  accept = p.substring(0,10)
                  acceptedtime = p.substring(11,19)
@@ -232,7 +285,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
                 }
               
                 if(item.complete_date == null){
-                  console.log("sd",item.complete_date)
+                //  console.log("sd",item.complete_date)
               /*    let c = item.completed_date
 
                  complete = c.substring(1,16) */
@@ -500,8 +553,8 @@ const _signaturePadChange = ({base64DataUrl}) => {
               style={{borderRadius:15,backgroundColor:'#2ea3f2',width:100,height:35,
               alignItems:'center',justifyContent:'center'}}
               onPress={() =>
-                 { /* uploadSignFile(token,userID) */
-                    completeOrder()
+                 { uploadSignFile(token)
+                   // completeOrder()
                 }
             }>
               <Text style={{color:'#FFFFFF',fontWeight:'bold'}}>Complete</Text>
@@ -515,7 +568,7 @@ const _signaturePadChange = ({base64DataUrl}) => {
 
 
 
-         <Modal
+      <Modal
         animationType="fade"
         transparent={true}
         visible={loading}
@@ -527,8 +580,10 @@ const _signaturePadChange = ({base64DataUrl}) => {
       >
            <View style={styles.centeredView}>
           <View style={styles.loads}>
-          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
-        <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
           </View>
     
         </View>

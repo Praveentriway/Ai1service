@@ -365,7 +365,7 @@ const tokenKey = async() =>{
     }else{
       rol = userID
     }
-    // setLoading(true)
+   setLoading(true)
 
      if(products.length <= 0){
      console.log("0")
@@ -657,7 +657,7 @@ const tokenKey = async() =>{
 
 
 
-      <Modal
+           <Modal
         animationType="fade"
         transparent={true}
         visible={loading}
@@ -667,10 +667,12 @@ const tokenKey = async() =>{
         }} */
        
       >
-          <View style={styles.centeredView}>
+           <View style={styles.centeredView}>
           <View style={styles.loads}>
-          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
-          <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text>
+          <Image source={require("../assets/laod.gif")} style={{height:"100%",width:"100%",padding:1,marginBottom:30}}/>
+   {/*        <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+     */}   
+     {/* <Text style={{color:'#2ea3f2',fontWeight:'bold'}}>Loading....</Text> */}
           </View>
     
         </View>

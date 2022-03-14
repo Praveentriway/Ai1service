@@ -25,18 +25,21 @@
    LearnMoreLinks,
    ReloadInstructions,
  } from 'react-native/Libraries/NewAppScreen';
+ import { NavigationContainer,useIsFocused } from '@react-navigation/native';
 
- import {launchCamera, launchImageLibrary} from 'react-native-image-picker'
  import axios from 'axios';
  import AsyncStorage from '@react-native-async-storage/async-storage';
  import RestApiConstant from './RestApiConstant';
- const Completed = ({navigation}) => {
+
+
+ const StaffList = ({navigation}) => {
   const isDarkMode = useColorScheme() === 'dark';
    const [userID, onChangeUserID] = React.useState()
    const [token, onChangeToken] = React.useState()
    const [loading, setLoading] = React.useState(false);
    const [lineItem,setLineItem] = React.useState([])
-   
+   const [sendID,setSendID] = React.useState(0)
+   const isFocused = useIsFocused();
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
@@ -46,7 +49,7 @@
     //  console.log(route.params.data)
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"])
     tokenKey()
-    },[])
+    },[isFocused])
 
 
     const tokenKey = async() =>{
@@ -104,9 +107,9 @@
           )
        1
 
-            axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/report/orders/staff/${r}?page_no=1&page_size=100`,{ headers: {"Authorization" : `Bearer ${res}`} })
-            .then((res) => {
-            //  console.log(res.data)
+       axios.get(`${RestApiConstant.BASE_URL}/wp-json/ai1service/v1/vendor/${r}/staffs`,{ headers: {"Authorization" : `Bearer ${res}`} })
+       .then((res) => {
+           console.log(res.data)
               setLoading(false)
               setLineItem(res.data)   
             }).catch((er)=>{
@@ -115,72 +118,38 @@
          }
 
 
-       const imagePicker =async () =>{
-        const result = await launchImageLibrary(options)
-       console.log(result)
-        /* ImagePicker.showImagePicker(options, res => {
 
-          console.log('Response = ', res);
-    
-          if (res.didCancel) {
-    
-            console.log('User cancelled image picker');
-    
-          } else if (res.error) {
-    
-            console.log('ImagePicker Error: ', res.error);
-    
-          } else if (res.customButton) {
-    
-            console.log('User tapped custom button: ', res.customButton);
-    
-            alert(res.customButton);
-    
-          } else {
-    
-            let source = res;
-    
-            console.log('User tapped custom button: ', res);
-    
-          }
-    
-        }); */
-       }
          
          const modalList=(item)=>{
-           var accept = ''
-           var complete = ''
-                if(item.accepted_date != null){
-               /*    console.log(item.accepted_date) */
-                 let p = item.accepted_date
-                 accept = p.substring(0,10)
-                 let c = item.completed_date
-                 complete = c.substring(0,10) 
-            
-                }
-              
-                if(item.complete_date == null){
-        /*           console.log("sd",item.complete_date) */
-              /*    let c = item.completed_date
-                 complete = c.substring(1,16) */
-                }else{
-                  let c = item.completed_date
-                 complete = c.substring(1,16) 
-                }
+ var accept = ""
+            if(item.user_registered != null){
+                /*    console.log(item.accepted_date) */
+                  let p = item.user_registered
+                  accept = p.substring(0,10)
+          
+             
+                 }
+        
           
              return(
-              <View style={{width:"100%",height:40,backgroundColor:'#CEECF5',marginTop:10,borderRadius:5,justifyContent:'space-around',alignContent:'center',flexDirection:'row'}}>
+              <View style={{width:"100%",height:40,backgroundColor:'#CEECF5',marginTop:5,borderRadius:5,justifyContent:'space-around',alignContent:'center',flexDirection:'row'}}>
               <View style={{width:'10%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-                 <Text style={{color:"#000",fontWeight:'500'}}>{item.id}</Text>
+                 <Text style={{color:"#000",fontWeight:'500',fontSize:11}}>{item.id}</Text>
               </View>
               <View style={{width:'20%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-                 <Text style={{color:"#000",fontWeight:'500'}}>{item.order_id}</Text>
+                 <Text style={{color:"#000",fontWeight:'500',fontSize:11}}>{item.user_nicename}</Text>
               </View>
               <View style={{width:'30%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-                 <Text style={{color:"#000",fontWeight:'500'}}>{accept}</Text>
+                 <Text style={{color:"#000",fontWeight:'500',fontSize:11}}>{item.user_email}</Text>
               </View>
-              <View style={{width:'30%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-                 <Text style={{color:"#000",fontWeight:'500'}}>{complete}</Text>
+              <View style={{width:'20%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
+                 <Text style={{color:"#000",fontWeight:'500',fontSize:11}}>{accept}</Text>
+              </View>
+              <View style={{width:'20%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
+                <TouchableOpacity onPress={()=>{navigation.navigate('EditStaff',{data:item.id})}}>
+                <Image source={require('../assets/edit.png')} style={{height:18,width:18}}/>
+                </TouchableOpacity>
+     
               </View>
               </View>
              )
@@ -197,12 +166,12 @@
        <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',marginTop:0,padding:20,width:'100%'}}>
             
              
-         <View style={{flexDirection:'row',justifyContent:'space-between',width:"50%",alignItems:'center'}}>
+         <View style={{flexDirection:'row',width:"50%",alignItems:'center'}}>
            <TouchableOpacity onPress={()=>{navigation.navigate('Home')}}>
-         <Image source={require('../assets/left.png')} style={{height:22,width:22,padding:12}}/>
+         <Image source={require('../assets/left.png')} style={{height:20,width:20,padding:12}}/>
          </TouchableOpacity>
            {/*  <Image source={require('../assets/atoz.png')} style={{height:30,width:30,padding:10}}/> */}
-            <Text style={{padding:1,fontWeight:'bold',fontSize:16,color:"#000",left:5}}>ORDER COMPLETED</Text>
+            <Text style={{padding:1,fontWeight:'bold',fontSize:16,color:"#000",left:10}}>STAFF LIST</Text>
             </View>
              
          <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',width:80}}  >
@@ -231,18 +200,28 @@
 
 
          <View style={{width:"100%",marginTop:20,padding:5,marginBottom:0}}>
+         <TouchableOpacity
+              style={{borderRadius:5,backgroundColor:'#2ea3f2',width:90,height:30,marginBottom:10,
+              alignItems:'center',justifyContent:'center'}}
+              onPress={()=>{navigation.navigate('EditStaff',{data:sendID})}}
+            >
+              <Text style={{color:'#FFFFFF',fontWeight:'bold',fontSize:12}}>ADD STAFF</Text>
+            </TouchableOpacity> 
          <View style={{width:"100%",height:30,backgroundColor:'#000',borderRadius:5,justifyContent:'space-around',alignContent:'center',flexDirection:'row'}}>
          <View style={{width:'10%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-            <Text style={{color:"#fff",fontWeight:'bold'}}>S.No</Text>
+            <Text style={{color:"#fff",fontWeight:'bold'}}>ID</Text>
          </View>
          <View style={{width:'20%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-            <Text style={{color:"#fff",fontWeight:'bold'}}>Order ID</Text>
+            <Text style={{color:"#fff",fontWeight:'bold'}}>Name</Text>
          </View>
          <View style={{width:'30%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-            <Text style={{color:"#fff",fontWeight:'bold'}}>Accepted</Text>
+            <Text style={{color:"#fff",fontWeight:'bold'}}>Email</Text>
          </View>
-         <View style={{width:'30%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
-            <Text style={{color:"#fff",fontWeight:'bold'}}>Completed</Text>
+         <View style={{width:'20%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
+            <Text style={{color:"#fff",fontWeight:'bold'}}>Registered</Text>
+         </View>
+         <View style={{width:'20%',alignItems:'center',alignContent:'center',justifyContent:'center'}}>
+            <Text style={{color:"#fff",fontWeight:'bold'}}>Edit</Text>
          </View>
          </View>
         <ScrollView >
@@ -250,7 +229,7 @@
          <FlatList
        
         data={lineItem}
-        keyExtractor={item => item.item_id+Math.random()} 
+        keyExtractor={item => item.id+Math.random()} 
         renderItem={({ item,index }) => modalList(item)}
       />
       </View>
@@ -258,7 +237,23 @@
          </View>
 
 
-         <Modal
+         {/* <Modal
+        animationType="fade"
+        transparent={true}
+        visible={loading}
+      
+       
+      >
+           <View style={styles.centeredView}>
+          <View style={styles.loads}>
+          <ActivityIndicator style={{justifyContent:"space-around",flexDirection:"row",marginBottom:20,marginTop:20}} animating={true} size="large" color="#2ea3f2" />
+        <Text style={{color:'#04B4AE',fontWeight:'bold'}}>Loading....</Text>
+          </View>
+    
+        </View>
+      </Modal> */}
+
+      <Modal
         animationType="fade"
         transparent={true}
         visible={loading}
@@ -315,4 +310,4 @@
   }
 })
 
- export default Completed;
+ export default StaffList;
